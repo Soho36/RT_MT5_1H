@@ -17,7 +17,7 @@ def last_candle_ohlc(output_df_with_levels):
 
 
 def send_buy_sell_orders(
-        t_price,
+        stop_market_price,
         last_signal,
         current_signal,
         n_index,
@@ -25,7 +25,6 @@ def send_buy_sell_orders(
         sell_signal,
         last_candle_high,
         last_candle_low,
-        last_candle_close,
         ticker,
         stop_loss_offset,
         risk_reward,
@@ -71,7 +70,7 @@ def send_buy_sell_orders(
                     # Take Profit Prices (based on R:R ratios)
                     take_profit_price = round(entry_price + 1 * risk, 3)  # 1:1 R:R
 
-                    line_order_parameters = f'{ticker},Buy,{t_price},{stop_loss_price},{take_profit_price}'  # NO WHITESPACES
+                    line_order_parameters = f'{ticker},Buy,{stop_market_price},{stop_loss_price},{take_profit_price}'  # NO WHITESPACES
                     print('line_order_parameters: ', line_order_parameters)
                     save_order_parameters_to_file(line_order_parameters)  # Located in data_handling_realtime.py
 
@@ -116,7 +115,7 @@ def send_buy_sell_orders(
                     # Take Profit Prices (based on R:R ratios)
                     take_profit_price = round(entry_price - 1 * risk, 3)
 
-                    line_order_parameters = f'{ticker},Sell,{t_price},{stop_loss_price},{take_profit_price}'
+                    line_order_parameters = f'{ticker},Sell,{stop_market_price},{stop_loss_price},{take_profit_price}'
                     print('line_order_parameters: ', line_order_parameters)
                     save_order_parameters_to_file(line_order_parameters)  # Save to file function
 
