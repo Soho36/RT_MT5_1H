@@ -1,5 +1,4 @@
 import pandas as pd
-from datetime import datetime, timedelta
 
 log_file_reading_interval = 1       # File reading interval (sec)
 
@@ -27,10 +26,6 @@ mt5_account_number = 475    # LAST 3 DIGITS OF MT5 ACCOUNT. MUST BE CHANGED BEFO
 #      f'C:\\Users\\Liikurserv\\AppData\\Roaming\\MetaQuotes\\Terminal\\1D0E83E0BCAA42603583233CF21A762C\\MQL5\\Files\\'
 #      f'buy_sell_signals_from_python_2.txt'
 #      )
-
-levels_path = (
-    f'C:\\Users\\Liikurserv\\PycharmProjects\\RT_MT5\\hardcoded_sr_levels.csv'
-)
 
 list_of_orders_path = 'list_of_orders.csv'
 position_state_path = (
@@ -78,74 +73,7 @@ def get_dataframe_from_file(max_time_waiting_for_entry):
 
     return dataframe_from_log, last_date
 
-
-# def get_levels_from_file():
-#     with open(levels_path, 'r', encoding='utf-8') as file:
-#         levels = [
-#             (line.split(',')[0].strip(), float(line.split(',')[1].strip()))
-#             for line in file
-#         ]
-#     return levels
-
-
-def get_levels_from_file():
-    updated_lines = []
-    levels = []
-
-    with open(levels_path, 'r', encoding='utf-8') as file:
-        for line in file:
-            parts = line.strip().split(',')
-
-            if len(parts) == 2:
-                # Properly formatted line
-                timestamp = parts[0].strip()
-                level = float(parts[1].strip())
-            else:
-                # Line with only a level; add current timestamp
-                current_time = datetime.now()
-
-                if current_time.second > 0:
-                    current_time += timedelta(minutes=1)
-
-                current_time = current_time.replace(second=0, microsecond=0)
-
-                timestamp = current_time.strftime('%Y-%m-%d %H:%M:%S')
-                level = float(parts[0].strip())
-
-            # Add the formatted line to the update list
-            updated_lines.append(f"{timestamp}, {level}\n")
-            levels.append((timestamp, level))
-
-    # Rewrite the file with only properly formatted lines
-    with open(levels_path, 'w', encoding='utf-8') as file:
-        file.writelines(updated_lines)
-
-    return levels
-
-
-#   Remove level which has reached time threshold from file
-def remove_expired_levels(level_lifetime_minutes, dataframe_from_log):
-    # output_df_with_levels = output_df_with_levels.set_index(['Datetime'], inplace=True)
-    current_time = dataframe_from_log.index[-1]  # Timestamp of the last line of dataframe
-    updated_levels = []
-
-    with open(levels_path, 'r', encoding='utf-8') as file:
-        for line in file:
-            timestamp_str, level = line.strip().split(',')
-            timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
-
-            # Calculate the time difference
-            time_diff = (current_time - timestamp).total_seconds() / 60  # Convert to minutes
-
-            # Keep the level if it is still within its lifetime
-            if time_diff < level_lifetime_minutes:
-                updated_levels.append(line)
-            else:
-                print(f"Removing expired level: {timestamp_str}, {level.strip()}")
-
-    # Write the remaining levels back to the file
-    with open(levels_path, 'w', encoding='utf-8') as file:
-        file.writelines(updated_levels)
+# +------------------------------------------------------------------+
 
 
 def get_position_state():
