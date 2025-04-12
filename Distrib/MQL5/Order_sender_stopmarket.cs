@@ -81,7 +81,8 @@ void OnTick()
             double stop_loss = StringToDouble(components[3]);
             double take_profit = StringToDouble(components[4]);
             // double volume = 1;
-
+            // FILE CONTENTS MUST LOOK LIKE THIS:
+            // BTCUSD,Sell,84600,85000,84000
             Print(symbol, ", ", direction, ", ", stop_market, ", ", stop_loss, ", ", take_profit);
 
             MqlTradeRequest request = {};
@@ -106,6 +107,11 @@ void OnTick()
                 request.type = ORDER_TYPE_SELL_STOP;
                 request.price = stop_market;
             }
+            else
+            {
+                Print("Invalid direction: ", direction);
+                return; // Exit if the direction is invalid
+            }
 
             if (!OrderSend(request, result))
             {
@@ -113,7 +119,8 @@ void OnTick()
             }
             else
             {
-                PrintFormat("retcode=%u  deal=%I64u  order=%I64u", result.retcode, result.deal, result.order);
+                PrintFormat("Request: action=%d, symbol=%s, volume=%.2f, price=%.2f, sl=%.2f, tp=%.2f, type=%d",
+            request.action, request.symbol, request.volume, request.price, request.sl, request.tp, request.type);
             }
         }
     }

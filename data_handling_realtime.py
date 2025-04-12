@@ -32,7 +32,7 @@ levels_path = (
     f'C:\\Users\\Liikurserv\\PycharmProjects\\RT_MT5\\hardcoded_sr_levels.csv'
 )
 
-list_of_orders_path = 'C:\\Users\\Liikurserv\\PycharmProjects\\RT_MT5\\list_of_orders.csv'
+list_of_orders_path = 'list_of_orders.csv'
 position_state_path = (
     'C:\\Users\\Liikurserv\\AppData\\Roaming\\MetaQuotes\\Terminal\\1D0E83E0BCAA42603583233CF21A762C\\MQL5\\Files\\PositionState.txt'
 )
