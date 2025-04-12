@@ -1,6 +1,6 @@
 import winsound
 import pandas as pd
-from data_handling_realtime import save_order_parameters_to_file, save_list_of_orders_to_file
+from data_handling_realtime import save_buy_order_parameters_to_file, save_sell_order_parameters_to_file, save_list_of_orders_to_file
 from datetime import datetime
 
 
@@ -72,7 +72,7 @@ def send_buy_sell_orders(
 
                     line_order_parameters = f'{ticker},Buy,{stop_market_price},{stop_loss_price},{take_profit_price}'  # NO WHITESPACES
                     print('line_order_parameters: ', line_order_parameters)
-                    save_order_parameters_to_file(line_order_parameters)  # Located in data_handling_realtime.py
+                    save_buy_order_parameters_to_file(line_order_parameters)  # Located in data_handling_realtime.py
 
                     # line_order_parameters_to_order_list = f'{n_index},Buy,{t_price},{s_time}'
                     line_order_parameters_to_order_list = f'{current_order_timestamp}'
@@ -117,7 +117,7 @@ def send_buy_sell_orders(
 
                     line_order_parameters = f'{ticker},Sell,{stop_market_price},{stop_loss_price},{take_profit_price}'
                     print('line_order_parameters: ', line_order_parameters)
-                    save_order_parameters_to_file(line_order_parameters)  # Save to file function
+                    save_sell_order_parameters_to_file(line_order_parameters)  # Save to file function
 
                     # line_order_parameters_to_order_list = f'{n_index},Sell,{t_price},{s_time}'
                     line_order_parameters_to_order_list = f'{current_order_timestamp}'
