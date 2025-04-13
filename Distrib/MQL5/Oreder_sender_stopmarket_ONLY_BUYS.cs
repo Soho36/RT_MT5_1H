@@ -1,10 +1,9 @@
-#property version   "1.03"
+#property version   "1.04"
 #property script_show_inputs
 
 input string pattern="";
 input double volume=1;
 input string comment="";
-input int magic=12345;
 
 
 //+------------------------------------------------------------------+
@@ -41,7 +40,7 @@ void OnTick()
         return;
     }
 
-    Sleep(1000); // Adjust sleep time if needed
+    Sleep(500); // Adjust sleep time if needed
 
     // Open and read file
     int fileHandle = FileOpen(fileName, FILE_READ | FILE_ANSI);
@@ -109,6 +108,59 @@ void OnTick()
                 Print("Invalid direction: ", direction);
                 return; // Exit if the direction is invalid
             }
+            // Cancel existing SELL STOP pending orders with same magic number
+			for (int i = OrdersTotal() - 1; i >= 0; i--)
+         {
+             ulong ticket = OrderGetTicket(i);
+             Print("Checking order #", i, ", ticket: ", ticket);
+
+             if (!OrderSelect(ticket))
+             {
+                 Print("Failed to select order with ticket: ", ticket, ", error: ", GetLastError());
+                 continue;
+             }
+
+             string orderSymbol = OrderGetString(ORDER_SYMBOL);
+             int orderMagic     = (int)OrderGetInteger(ORDER_MAGIC);
+             int orderType      = (int)OrderGetInteger(ORDER_TYPE);
+
+             Print("Order info - Symbol: ", orderSymbol, ", Magic: ", orderMagic, ", Type: ", orderType);
+
+             if (orderSymbol != symbol)
+             {
+                 Print("Skipped: symbol mismatch");
+                 continue;
+             }
+
+             if (orderMagic != EXPERT_MAGIC)
+             {
+                 Print("Skipped: magic number mismatch");
+                 continue;
+             }
+
+             if (orderType != ORDER_TYPE_BUY_STOP)
+             {
+                 Print("Skipped: not a SELL STOP");
+                 continue;
+             }
+
+             // Cancel the existing pending order
+             MqlTradeRequest cancel = {};
+             MqlTradeResult cancel_result = {};
+
+             cancel.action = TRADE_ACTION_REMOVE;
+             cancel.order = ticket;
+
+             if (!OrderSend(cancel, cancel_result))
+             {
+                 Print("Failed to cancel order: ", GetLastError());
+             }
+             else
+             {
+                 Print("Cancelled existing SELL STOP order, ticket: ", ticket);
+             }
+         }
+
 
             if (!OrderSend(request, result))
             {
