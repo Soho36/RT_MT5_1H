@@ -30,6 +30,51 @@ void OnTick()
     Old_Time = New_Time[0]; // Update Old_Time to prevent re-triggering within the same bar
 
     // Main trading logic goes here
+	// === Check for open position ===
+	if (PositionSelect(_Symbol))
+	{
+		ulong ticket       = PositionGetTicket(_Symbol);
+		double entry_price = PositionGetDouble(POSITION_PRICE_OPEN);
+		double stop_loss   = PositionGetDouble(POSITION_SL);
+		double take_profit = PositionGetDouble(POSITION_TP);
+		double current_close;
+
+		// Calculate RISK
+		double risk = MathAbs(entry_price - stop_loss) > (_Point * 2);
+
+		// Get last candle close (not current forming candle)
+		double close_price[2];
+		if (CopyClose(_Symbol, _Period, 1, 1, close_price) <= 0)
+		{
+			Print("Failed to get candle close: ", GetLastError());
+			return;
+		}
+		current_close = close_price[0];
+
+		// For SELL: look for price moving down far enough
+		if (entry_price - current_close >= risk && MathAbs(take_profit - current_close) > _Point)
+		{
+			// Update TP
+			MqlTradeRequest request = {};
+			MqlTradeResult result = {};
+
+			request.action   = TRADE_ACTION_SLTP;
+			request.symbol   = _Symbol;
+			request.sl       = stop_loss;
+			request.tp       = current_close;
+			request.position = ticket;
+
+			if (!OrderSend(request, result))
+			{
+				Print("Failed to update TP: ", GetLastError());
+			}
+			else
+			{
+				Print("TP updated to: ", current_close);
+			}
+		}
+	}
+
     #define EXPERT_MAGIC 12345
     string fileName = "sell_signals_from_python.txt";
 
